@@ -200,9 +200,11 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
         } else {
             // update distance
             dist = succ_min;
-            // otherwise, update path and order to include next
+
+            // update path and order to include next
             path.insert(std::make_pair(next, dist));
             order.push(next);
+
             // erase node from successors
             successors.erase(next);
         }
