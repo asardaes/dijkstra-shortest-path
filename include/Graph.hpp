@@ -13,13 +13,14 @@
 template <typename vertex_t, typename weight_t>
 template <typename v_t, typename w_t>
 Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex() {
-    // This seems to be needed for whatever reason
+    // This seems to be needed for internal reasons
+    edges = std::list< std::pair<v_t, w_t> > { std::make_pair(v_t(), w_t(0)) };
 };
 
 template <typename vertex_t, typename weight_t>
 template <typename v_t, typename w_t>
 Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(v_t vertex, w_t weight = w_t(0)) {
-        edges = std::list< std::pair<v_t, w_t> > { std::make_pair(vertex, weight) };
+    edges = std::list< std::pair<v_t, w_t> > { std::make_pair(vertex, weight) };
 };
 
 // =============================================================================================================================
