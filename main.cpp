@@ -23,5 +23,13 @@ int main() {
     cout << "Number of vertices = " << graph.size() << endl << endl;
     graph.print();
 
+    cout << "Shortest path from S to T = " << graph.shortest_path("S", "T") << endl;
+    cout << "Shortest path from S to S = " << graph.shortest_path("S", "S") << endl;
+    cout << "Shortest path from S to G = " << graph.shortest_path("S", "G") << endl;
+    cout << "Shortest path from B to E = " << graph.shortest_path("B", "E") << endl;
+    cout << endl;
+    cout << "Shortest path from C to A = " << graph.shortest_path("C", "A") << endl;
+    cout << "Shortest path from F to B = " << graph.shortest_path("F", "B") << endl;
+
     return 0;
 }

@@ -1,6 +1,8 @@
-#include <algorithm>
+#include <algorithm> // std::find_if
 #include <iostream>
 #include <list>
+#include <stack>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -16,8 +18,7 @@ Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex() {
 
 template <typename vertex_t, typename weight_t>
 template <typename v_t, typename w_t>
-Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(unsigned int id, v_t vertex, w_t weight = w_t(0)):
-    id(id) {
+Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(v_t vertex, w_t weight = w_t(0)) {
         edges = std::list< std::pair<v_t, w_t> > { std::make_pair(vertex, weight) };
 };
 
@@ -27,15 +28,11 @@ Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(unsigned int id, v_t vertex,
 
 template <typename vertex_t, typename weight_t>
 Graph<vertex_t, weight_t>::Graph(std::vector<vertex_t> vert, bool directed): directed(directed) {
-    num_vert = vert.size();
-
-    vertices = std::vector< Vertex<vertex_t, weight_t> > (num_vert);
+    vertices = std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > ();
 
     // at least one edge per vertex that points to self with a weight of zero
-    int id = 0;
     for (auto it = vert.begin(); it != vert.end(); ++it) {
-        vertices[id] = Vertex<vertex_t, weight_t> (id, *it);
-        id++;
+        vertices[*it] = Vertex<vertex_t, weight_t> (*it);
     }
 }
 
@@ -51,37 +48,36 @@ unsigned int Graph<vertex_t, weight_t>::size() {
 template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::print() {
     for (auto i = vertices.begin(); i != vertices.end(); ++i) {
-        std::cout << "Vertex " << i->id << " - " <<
-            i->edges.front().first << ":" << std::endl;
+        std::cout << "Vertex " << i->first << ":" << std::endl;
 
-        for (auto j = i->edges.begin(); j != i->edges.end(); ++j) {
+        for (auto j = i->second.edges.begin(); j != i->second.edges.end(); ++j) {
             std::cout <<
                 "\tEdge to " << j->first <<
                 " with a weight of " << j->second <<
                 std::endl;
         }
     }
+
+    std::cout << std::endl;
 }
 
 template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::add_edge(vertex_t vert_1, vertex_t vert_2, weight_t weight) {
-    auto vert_1_exists = std::find_if(vertices.begin(), vertices.end(),
-        [&vert_1](Vertex<vertex_t, weight_t>& vert) { return vert.edges.front().first == vert_1; });
+    auto vert_1_exists = vertices.find(vert_1);
 
     if (vert_1_exists != vertices.end()) {
-        auto vert_2_exists = std::find_if(vert_1_exists->edges.begin(), vert_1_exists->edges.end(),
+        auto vert_2_exists = std::find_if(vert_1_exists->second.edges.begin(), vert_1_exists->second.edges.end(),
             [&vert_2](std::pair<vertex_t, weight_t>& element) { return element.first == vert_2; });
 
-        if (vert_2_exists == vert_1_exists->edges.end()) {
-            vert_1_exists->edges.push_back(std::make_pair(vert_2, weight));
+        if (vert_2_exists == vert_1_exists->second.edges.end()) {
+            vert_1_exists->second.edges.push_back(std::make_pair(vert_2, weight));
 
             if (!directed) {
-                auto vert_inv = std::find_if(vertices.begin(), vertices.end(),
-                    [&vert_2](Vertex<vertex_t, weight_t>& vert) { return vert.edges.front().first == vert_2; });
+                auto vert_inv = vertices.find(vert_2);
 
                 if (vert_inv != vertices.end()) {
                     // this should always be the case here
-                    vert_inv->edges.push_back(std::make_pair(vert_1, weight));
+                    vert_inv->second.edges.push_back(std::make_pair(vert_1, weight));
                 }
             }
         } else {
@@ -110,22 +106,92 @@ void Graph<vertex_t, weight_t>::add_edge(vertex_t vert_1, std::vector<vertex_t> 
     }
 }
 
+// =============================================================================================================================
+// Graph shortest path method template
+// =============================================================================================================================
+
 template <typename vertex_t, typename weight_t>
-void Graph<vertex_t, weight_t>::add_edge(std::vector<vertex_t> verts_1, std::vector<vertex_t> verts_2, std::vector<weight_t> weights) {
-    if (verts_1.size() != verts_2.size() || verts_2.size() != weights.size()) {
-        //std::cout << "Size mismatch between amount of vertices and amount of weights." << std::endl;
-        return;
+weight_t Graph<vertex_t, weight_t>::shortest_path(vertex_t start, vertex_t target) {
+    std::stack<vertex_t> order;
+    std::unordered_map<vertex_t, weight_t> path;
+    std::unordered_map<vertex_t, weight_t> successors;
+
+    // find start
+    auto start_exists = vertices.find(start);
+
+    if (start_exists == vertices.end()) {
+        throw "Start vertex does not exist in graph";
     }
 
-    auto i = verts_1.begin();
-    auto j = verts_2.begin();
-    auto k = weights.begin();
+    // each edge is already a pair with weight 0
+    path.insert(start_exists->second.edges.front());
+    order.push(start);
 
-    while (i != verts_1.end()) {
-        add_edge(*i, *j, *k);
+    // initialize
+    weight_t dist = weight_t(0);
+    weight_t succ_min;
 
-        i++;
-        j++;
-        k++;
+    while (!order.empty() && path.find(target) == path.end()) {
+        auto current = order.top();
+        auto next = current;
+
+        // add successors if appropriate
+        for (auto it = vertices[current].edges.begin(); it != vertices[current].edges.end(); ++it) {
+            bool is_new = path.find(it->first) == path.end() && successors.find(it->first) == successors.end();
+
+            if (is_new) {
+                // only insert next into successors if it wasn't on path/sucessors
+                successors.insert(std::make_pair(it->first, it->second + dist));
+
+            } else {
+                // if it wasn't in path, it was already in successors, but distance is better, update successor
+                auto it_succ = successors.find(it->first);
+                if (path.find(it->first) == path.end() && it_succ != successors.end() && it->second + dist < it_succ->second) {
+                    successors[it->first] = it->second + dist;
+                }
+            }
+        }
+
+        // find smallest distance so far
+        if (!successors.empty()) {
+            auto it_succ_min = successors.begin();
+
+            next = it_succ_min->first;
+            succ_min = it_succ_min->second;
+
+            for (auto it = it_succ_min; it != successors.end(); ++it) {
+                if (it->second < succ_min) {
+                    next = it->first;
+                    succ_min = it->second;
+                }
+            }
+        }
+
+        if (next == current) {
+            // if next didn't change, go back
+            order.pop();
+
+            // if stack still has values
+            if (!order.empty()) {
+                dist = path[order.top()];
+            }
+
+        } else {
+            // update distance
+            dist = succ_min;
+            // otherwise, update path and order to include next
+            path.insert(std::make_pair(next, dist));
+            order.push(next);
+            // erase node from successors
+            successors.erase(next);
+        }
     }
+
+    // final distance will be -1 if path could not be found
+    auto res = path.find(target);
+
+    if(res != path.end())
+        return res->second;
+    else
+        return weight_t(-1);
 }

@@ -1,9 +1,10 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <list>
-#include <utility>
-#include <vector>
+#include <list> // std::list
+#include <unordered_map> // std::unordered_map
+#include <utility> // std::pair
+#include <vector> // std::vector
 
 // =============================================================================================================================
 // Graph class template
@@ -16,9 +17,11 @@ class Graph {
 
         unsigned int size();
         void print();
+
         void add_edge(vertex_t vert_1, vertex_t vert_2, weight_t weight = weight_t(0));
         void add_edge(vertex_t vert_1, std::vector<vertex_t> verts_2, std::vector<weight_t> weights);
-        void add_edge(std::vector<vertex_t> verts_1, std::vector<vertex_t> verts_2, std::vector<weight_t> weights);
+
+        weight_t shortest_path(vertex_t start, vertex_t target);
 
     protected:
 
@@ -26,15 +29,13 @@ class Graph {
         template <typename v_t, typename w_t>
         struct Vertex {
             Vertex();
-            Vertex(unsigned int id, v_t vertex, w_t weight);
+            Vertex(v_t vertex, w_t weight);
 
-            unsigned int id;
             std::list< std::pair<v_t, w_t> > edges;
         };
 
-        unsigned int num_vert;
         bool directed;
-        std::vector< Vertex<vertex_t, weight_t> > vertices;
+        std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > vertices;
 };
 
 // =============================================================================================================================
