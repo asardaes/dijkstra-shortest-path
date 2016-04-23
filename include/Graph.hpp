@@ -46,6 +46,11 @@ unsigned int Graph<vertex_t, weight_t>::size() {
 }
 
 template <typename vertex_t, typename weight_t>
+bool Graph<vertex_t, weight_t>::is_directed() {
+    return directed;
+}
+
+template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::print() {
     for (auto i = vertices.begin(); i != vertices.end(); ++i) {
         std::cout << "Vertex " << i->first << ":" << std::endl;
@@ -129,7 +134,7 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(vertex_t start, vertex_t targe
 
     // initialize
     weight_t dist = weight_t(0);
-    weight_t succ_min;
+    weight_t succ_min = weight_t(0);
 
     while (!order.empty() && path.find(target) == path.end()) {
         auto current = order.top();

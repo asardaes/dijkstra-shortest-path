@@ -16,6 +16,7 @@ class Graph {
         Graph(std::vector<vertex_t> vert, bool directed = true);
 
         unsigned int size();
+        bool is_directed();
         void print();
 
         void add_edge(vertex_t vert_1, vertex_t vert_2, weight_t weight = weight_t(0));

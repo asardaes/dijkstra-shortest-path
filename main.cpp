@@ -20,7 +20,8 @@ int main() {
     graph.add_edge("G", vector<vert_t> {"E", "T"}, vector<weight_t> {2, 3});
     graph.add_edge("T", "F", 5);
 
-    cout << "Number of vertices = " << graph.size() << endl << endl;
+    cout << "Number of vertices = " << graph.size() << endl;
+    cout << "Directed: " << (graph.is_directed() ? "yes" : "no") << endl << endl;
     graph.print();
 
     cout << "Shortest path from S to T = " << graph.shortest_path("S", "T") << endl;
