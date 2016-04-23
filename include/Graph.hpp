@@ -1,3 +1,12 @@
+/*
+NOTES
+
+Implementation of templates have to be included in header somehow, using this .hpp file and #including it in the Graph.h file
+is one of the options I found to keep interface and implementation separate. However, I think this separation is merely visual,
+so to speak. If I were to use the header in another project, I would also have to include the .hpp file, which has all the
+details.
+*/
+
 #include <algorithm> // std::find_if
 #include <iostream>
 #include <list>
