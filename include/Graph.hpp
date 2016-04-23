@@ -19,7 +19,7 @@ Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex() {
 
 template <typename vertex_t, typename weight_t>
 template <typename v_t, typename w_t>
-Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(v_t vertex, w_t weight = w_t(0)) {
+Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(const v_t& vertex, const w_t& weight) {
     edges = std::list< std::pair<v_t, w_t> > { std::make_pair(vertex, weight) };
 };
 
@@ -28,7 +28,7 @@ Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(v_t vertex, w_t weight = w_t
 // =============================================================================================================================
 
 template <typename vertex_t, typename weight_t>
-Graph<vertex_t, weight_t>::Graph(std::vector<vertex_t> vert, bool directed): directed(directed) {
+Graph<vertex_t, weight_t>::Graph(const std::vector<vertex_t>& vert, const bool& directed): directed(directed) {
     vertices = std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > ();
 
     // at least one edge per vertex that points to self with a weight of zero
@@ -68,7 +68,7 @@ void Graph<vertex_t, weight_t>::print() {
 }
 
 template <typename vertex_t, typename weight_t>
-void Graph<vertex_t, weight_t>::add_edge(vertex_t vert_1, vertex_t vert_2, weight_t weight) {
+void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const vertex_t& vert_2, const weight_t& weight) {
     auto vert_1_exists = vertices.find(vert_1);
 
     if (vert_1_exists != vertices.end()) {
@@ -95,7 +95,7 @@ void Graph<vertex_t, weight_t>::add_edge(vertex_t vert_1, vertex_t vert_2, weigh
 }
 
 template <typename vertex_t, typename weight_t>
-void Graph<vertex_t, weight_t>::add_edge(vertex_t vert_1, std::vector<vertex_t> verts_2, std::vector<weight_t> weights) {
+void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const std::vector<vertex_t>& verts_2, const std::vector<weight_t>& weights) {
     if (verts_2.size() != weights.size()) {
         //std::cout << "Size mismatch between amount of vertices and amount of weights." << std::endl;
         return;
@@ -117,7 +117,7 @@ void Graph<vertex_t, weight_t>::add_edge(vertex_t vert_1, std::vector<vertex_t> 
 // =============================================================================================================================
 
 template <typename vertex_t, typename weight_t>
-weight_t Graph<vertex_t, weight_t>::shortest_path(vertex_t start, vertex_t target) {
+weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const vertex_t& target) {
     std::stack<vertex_t> order;
     std::unordered_map<vertex_t, weight_t> path;
     std::unordered_map<vertex_t, weight_t> successors;
