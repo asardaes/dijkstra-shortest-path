@@ -37,13 +37,14 @@ Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(const v_t& vertex, const w_t
 // =============================================================================================================================
 
 template <typename vertex_t, typename weight_t>
-Graph<vertex_t, weight_t>::Graph(const std::vector<vertex_t>& vert, const bool& directed): directed(directed) {
-    vertices = std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > ();
+Graph<vertex_t, weight_t>::Graph(const std::vector<vertex_t>& vert, const bool& directed):
+    directed(directed) {
+        vertices = std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > ();
 
-    // at least one edge per vertex that points to self with a weight of zero
-    for (auto it = vert.begin(); it != vert.end(); ++it) {
-        vertices[*it] = Vertex<vertex_t, weight_t> (*it);
-    }
+        // at least one edge per vertex that points to self with a weight of zero
+        for (auto it = vert.begin(); it != vert.end(); ++it) {
+            vertices[*it] = Vertex<vertex_t, weight_t> (*it);
+        }
 }
 
 // =============================================================================================================================
@@ -75,6 +76,10 @@ void Graph<vertex_t, weight_t>::print() {
 
     std::cout << std::endl;
 }
+
+// -----------------------------------------------------------------------------------------------------------------------------
+// Graph::add_edge and overloads
+// -----------------------------------------------------------------------------------------------------------------------------
 
 template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const vertex_t& vert_2, const weight_t& weight) {
@@ -188,6 +193,7 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
 
             // if stack still has values
             if (!order.empty()) {
+                // adjust distance
                 dist = path[order.top()];
             }
 
