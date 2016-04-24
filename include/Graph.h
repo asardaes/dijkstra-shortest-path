@@ -20,6 +20,8 @@ class Graph {
         bool is_directed();
         void print();
 
+        void add_vertex(const vertex_t& vert);
+
         void add_edge(const vertex_t& vert_1, const vertex_t& vert_2, const weight_t& weight = weight_t(0));
         void add_edge(const vertex_t& vert_1, const std::vector<vertex_t>& verts_2, const std::vector<weight_t>& weights);
 

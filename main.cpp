@@ -9,7 +9,9 @@ using vert_t = string;
 using weight_t = int;
 
 int main() {
-    Graph<vert_t, weight_t> graph(vector<vert_t> {"S", "A", "B", "C", "D", "E", "F", "G", "T"}, true);
+    Graph<vert_t, weight_t> graph(vector<vert_t> {"S", "A", "B", "C", "D", "E", "F", "G"}, true);
+
+    graph.add_vertex("T");
 
     graph.add_edge("S", vector<vert_t> {"A", "B", "D"}, vector<weight_t> {4, 3, 7});
     graph.add_edge("A", "C", 1);
