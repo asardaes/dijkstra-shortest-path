@@ -9,9 +9,9 @@ using vert_t = string;
 using weight_t = int;
 
 int main() {
-    Graph<vert_t, weight_t> graph(vector<vert_t> {"S", "A", "B", "C", "D", "E", "F", "G"}, true);
+    vector<vert_t> vertices = {"S", "A", "B", "C", "D", "E", "F", "G", "T"};
 
-    graph.add_vertex("T");
+    Graph<vert_t, weight_t> graph(vertices , true);
 
     graph.add_edge("S", vector<vert_t> {"A", "B", "D"}, vector<weight_t> {4, 3, 7});
     graph.add_edge("A", "C", 1);
@@ -27,13 +27,14 @@ int main() {
     cout << "Name of vertex 3 is " << graph.get_vertex_by_id(3) << endl << endl;
     graph.print();
 
-    cout << "Shortest path from S to T = " << graph.shortest_path("S", "T") << endl;
-    cout << "Shortest path from S to S = " << graph.shortest_path("S", "S") << endl;
-    cout << "Shortest path from S to G = " << graph.shortest_path("S", "G") << endl;
-    cout << "Shortest path from B to E = " << graph.shortest_path("B", "E") << endl;
-    cout << endl;
-    cout << "Shortest path from C to A = " << graph.shortest_path("C", "A") << endl;
-    cout << "Shortest path from F to B = " << graph.shortest_path("F", "B") << endl;
+    for (auto i = vertices.begin(); i != vertices.end(); ++i) {
+        for (auto j = vertices.begin(); j != vertices.end(); ++j) {
+            cout << "Shortest path from " << *i << " to " << *j << " = "
+                << graph.shortest_path(*i, *j) << endl;
+        }
+
+        cout << endl;
+    }
 
     return 0;
 }
