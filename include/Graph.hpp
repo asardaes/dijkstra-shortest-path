@@ -145,7 +145,7 @@ void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const std::vect
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------
-// Graph::get_vertex_by_id path method template
+// Graph::get_vertex_by_id method template
 // -----------------------------------------------------------------------------------------------------------------------------
 
 template <typename vertex_t, typename weight_t>
@@ -225,11 +225,14 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
         // add it to closed set
         closed_set.insert(current);
 
+        // found it
+        if (current == target) break;
+
         // remove it from successors
         successors.erase(current);
         open_set.erase(open_set.cbegin());
 
-    } while (!successors.empty() && closed_set.find(target) == closed_set.end());
+    } while (!successors.empty());
 
     // final distance will be -1 if closed_set could not be found
     auto res = closed_set.find(target);
