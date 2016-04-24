@@ -27,6 +27,8 @@ int main() {
     cout << "Name of vertex 3 is " << graph.get_vertex_by_id(3) << endl << endl;
     graph.print();
 
+    graph.shortest_path("A", "D");
+
     for (auto i = vertices.begin(); i != vertices.end(); ++i) {
         for (auto j = vertices.begin(); j != vertices.end(); ++j) {
             cout << "Shortest path from " << *i << " to " << *j << " = "
