@@ -234,7 +234,7 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
 
     } while (!successors.empty());
 
-    // final distance will be -1 if closed_set could not be found
+    // final distance will be -1 if path could not be found
     auto res = closed_set.find(target);
 
     if(res != closed_set.end())
