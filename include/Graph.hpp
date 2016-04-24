@@ -1,7 +1,7 @@
 /*
 NOTES
 
-Implementation of templates have to be included in header somehow, using this .hpp file and #including it in the Graph.h file
+Implementations of templates have to be included in header somehow, using this .hpp file and #including it in the Graph.h file
 is one of the options I found to keep interface and implementation separate. However, I think this separation is merely visual,
 so to speak. If I were to use the header in another project, I would also have to include the .hpp file, which has all the
 details.
@@ -10,8 +10,9 @@ details.
 #include <algorithm> // std::find_if
 #include <iostream>
 #include <list>
-#include <stack>
+#include <map> // std::multimap
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -132,10 +133,6 @@ void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const std::vect
 
 template <typename vertex_t, typename weight_t>
 weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const vertex_t& target) {
-    std::stack<vertex_t> order;
-    std::unordered_map<vertex_t, weight_t> path;
-    std::unordered_map<vertex_t, weight_t> successors;
-
     // find start
     auto start_exists = vertices.find(start);
 
@@ -143,78 +140,70 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
         throw "Start vertex does not exist in graph";
     }
 
-    // each edge is already a pair with weight 0
-    path.insert(start_exists->second.edges.front());
-    order.push(start);
+    if (start == target) return weight_t(0);
 
     // initialize
+    std::unordered_set<vertex_t> closed_set;
+    std::unordered_set<vertex_t> successors;
+    std::multimap< weight_t, vertex_t > open_set;
+
+    closed_set.insert(start);
+    vertex_t current = start;
+    vertex_t next = start;
     weight_t dist = weight_t(0);
-    weight_t succ_min = weight_t(0);
 
-    while (!order.empty() && path.find(target) == path.end()) {
-        auto current = order.top();
-        auto next = current;
-
-        // add successors if appropriate
+    do {
+        // add neighbors to open set if appropriate
         for (auto it = vertices[current].edges.begin(); it != vertices[current].edges.end(); ++it) {
-            bool is_new = path.find(it->first) == path.end() && successors.find(it->first) == successors.end();
+            // if it's in closed set, skip
+            if (closed_set.find(it->first) != closed_set.end()) continue;
 
-            if (is_new) {
-                // only insert next into successors if it wasn't on path/sucessors
-                successors.insert(std::make_pair(it->first, it->second + dist));
+            // what's its name?
+            next = it->first;
+
+            // what would be its associated distance?
+            weight_t d = it->second + dist;
+
+            // is it in succesors?
+            if (successors.find(next) == successors.end()) {
+                // it wasn't in successors
+                successors.insert(next);
+                open_set.insert(std::make_pair(d, next));
 
             } else {
-                // if it wasn't in path, it was already in successors, but distance is better, update successor
-                auto it_succ = successors.find(it->first);
-                if (path.find(it->first) == path.end() && it_succ != successors.end() && it->second + dist < it_succ->second) {
-                    successors[it->first] = it->second + dist;
+                // it was, but check if new distance is better
+                auto it_open = std::find_if(open_set.begin(), open_set.end(),
+                    [&next] (std::pair<weight_t, vertex_t> element) { return element.second == next; });
+
+                if (d < it_open->first) {
+                    // distance was better, so update open set (it's already in successors)
+                    open_set.erase(it_open);
+                    open_set.insert(std::make_pair(d, next));
                 }
             }
         }
 
-        // find smallest distance so far
-        if (!successors.empty()) {
-            auto it_succ_min = successors.begin();
+        // no valid successors found
+        if (successors.empty()) break;
 
-            next = it_succ_min->first;
-            succ_min = it_succ_min->second;
+        // extract successor with smallest distance and update current
+        dist = open_set.begin()->first;
+        current = open_set.begin()->second;
 
-            for (auto it = it_succ_min; it != successors.end(); ++it) {
-                if (it->second < succ_min) {
-                    next = it->first;
-                    succ_min = it->second;
-                }
-            }
-        }
+        // add it to closed set
+        closed_set.insert(current);
 
-        if (next == current) {
-            // if next didn't change, go back
-            order.pop();
+        // remove it from successors
+        successors.erase(current);
+        open_set.erase(open_set.cbegin());
 
-            // if stack still has values
-            if (!order.empty()) {
-                // adjust distance
-                dist = path[order.top()];
-            }
+    } while (!successors.empty() && closed_set.find(target) == closed_set.end());
 
-        } else {
-            // update distance
-            dist = succ_min;
+    // final distance will be -1 if closed_set could not be found
+    auto res = closed_set.find(target);
 
-            // update path and order to include next
-            path.insert(std::make_pair(next, dist));
-            order.push(next);
-
-            // erase node from successors
-            successors.erase(next);
-        }
-    }
-
-    // final distance will be -1 if path could not be found
-    auto res = path.find(target);
-
-    if(res != path.end())
-        return res->second;
+    if(res != closed_set.end())
+        return dist;
     else
         return weight_t(-1);
 }
