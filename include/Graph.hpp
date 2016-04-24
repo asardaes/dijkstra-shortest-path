@@ -38,6 +38,12 @@ Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(const v_t& vertex, const w_t
 // =============================================================================================================================
 
 template <typename vertex_t, typename weight_t>
+Graph<vertex_t, weight_t>::Graph(const int& num_vert, const bool& directed):
+    directed(directed) {
+        vertices = std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > (num_vert);
+}
+
+template <typename vertex_t, typename weight_t>
 Graph<vertex_t, weight_t>::Graph(const std::vector<vertex_t>& vert, const bool& directed):
     directed(directed) {
         vertices = std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > ();

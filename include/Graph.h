@@ -13,6 +13,7 @@
 template <typename vertex_t, typename weight_t>
 class Graph {
     public:
+        Graph(const int& num_vert = 1, const bool& directed = true);
         Graph(const std::vector<vertex_t>& vert, const bool& directed = true);
 
         unsigned int size();
