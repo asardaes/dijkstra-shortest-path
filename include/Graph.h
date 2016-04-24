@@ -25,6 +25,7 @@ class Graph {
         void add_edge(const vertex_t& vert_1, const vertex_t& vert_2, const weight_t& weight = weight_t(0));
         void add_edge(const vertex_t& vert_1, const std::vector<vertex_t>& verts_2, const std::vector<weight_t>& weights);
 
+        vertex_t get_vertex_by_id(const unsigned int& id);
         weight_t shortest_path(const vertex_t& start, const vertex_t& target);
 
     protected:
@@ -33,11 +34,13 @@ class Graph {
         template <typename v_t, typename w_t>
         struct Vertex {
             Vertex();
-            Vertex(const v_t& vertex, const w_t& weight = w_t(0));
+            Vertex(const v_t& vertex, const w_t& weight = w_t(0), const int& id = 0);
 
+            unsigned int id;
             std::list< std::pair<v_t, w_t> > edges;
         };
 
+        unsigned int ids = 0;
         bool directed;
         std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > vertices;
 };

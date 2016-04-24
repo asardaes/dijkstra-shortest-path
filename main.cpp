@@ -23,7 +23,8 @@ int main() {
     graph.add_edge("T", "F", 5);
 
     cout << "Number of vertices = " << graph.size() << endl;
-    cout << "Directed: " << (graph.is_directed() ? "yes" : "no") << endl << endl;
+    cout << "Directed: " << (graph.is_directed() ? "yes" : "no") << endl;
+    cout << "Name of vertex 3 is " << graph.get_vertex_by_id(3) << endl << endl;
     graph.print();
 
     cout << "Shortest path from S to T = " << graph.shortest_path("S", "T") << endl;

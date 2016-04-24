@@ -24,13 +24,15 @@ template <typename vertex_t, typename weight_t>
 template <typename v_t, typename w_t>
 Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex() {
     // This seems to be needed for internal reasons
+    id = 0;
     edges = std::list< std::pair<v_t, w_t> > { std::make_pair(v_t(), w_t(0)) };
 };
 
 template <typename vertex_t, typename weight_t>
 template <typename v_t, typename w_t>
-Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(const v_t& vertex, const w_t& weight) {
+Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(const v_t& vertex, const w_t& weight, const int& id) {
     edges = std::list< std::pair<v_t, w_t> > { std::make_pair(vertex, weight) };
+    this->id = id;
 };
 
 // =============================================================================================================================
@@ -50,7 +52,7 @@ Graph<vertex_t, weight_t>::Graph(const std::vector<vertex_t>& vert, const bool& 
 
         // at least one edge per vertex that points to self with a weight of zero
         for (auto it = vert.begin(); it != vert.end(); ++it) {
-            vertices[*it] = Vertex<vertex_t, weight_t> (*it);
+            vertices[*it] = Vertex<vertex_t, weight_t> (*it, 0, ids++);
         }
 }
 
@@ -71,7 +73,7 @@ bool Graph<vertex_t, weight_t>::is_directed() {
 template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::print() {
     for (auto i = vertices.begin(); i != vertices.end(); ++i) {
-        std::cout << "Vertex " << i->first << ":" << std::endl;
+        std::cout << "Vertex " << i->first << "(" << i->second.id << "):" << std::endl;
 
         for (auto j = i->second.edges.begin(); j != i->second.edges.end(); ++j) {
             std::cout <<
@@ -90,7 +92,7 @@ void Graph<vertex_t, weight_t>::print() {
 
 template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::add_vertex(const vertex_t& vert) {
-    vertices[vert] = Vertex<vertex_t, weight_t> (vert);
+    vertices[vert] = Vertex<vertex_t, weight_t> (vert, 0, ids++);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------
@@ -142,9 +144,24 @@ void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const std::vect
     }
 }
 
-// =============================================================================================================================
-// Graph shortest path method template
-// =============================================================================================================================
+// -----------------------------------------------------------------------------------------------------------------------------
+// Graph::get_vertex_by_id path method template
+// -----------------------------------------------------------------------------------------------------------------------------
+
+template <typename vertex_t, typename weight_t>
+vertex_t Graph<vertex_t, weight_t>::get_vertex_by_id(const unsigned int& id) {
+    auto it = std::find_if(vertices.begin(), vertices.end(),
+        [&id] (std::pair<vertex_t, Vertex<vertex_t, weight_t>> element) { return element.second.id == id; } );
+
+    if (it == vertices.end())
+        return vertex_t();
+    else
+        return it->first;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------
+// Graph::shortest path method template
+// -----------------------------------------------------------------------------------------------------------------------------
 
 template <typename vertex_t, typename weight_t>
 weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const vertex_t& target) {
