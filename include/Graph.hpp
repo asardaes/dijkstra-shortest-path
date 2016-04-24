@@ -177,6 +177,7 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
     // initialize
     std::unordered_set<vertex_t> closed_set;
     std::unordered_set<vertex_t> successors;
+    std::unordered_set<vertex_t> visited;
     std::multimap< weight_t, vertex_t > open_set;
 
     closed_set.insert(start);
@@ -185,32 +186,36 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
     weight_t dist = weight_t(0);
 
     do {
-        // add neighbors to open set if appropriate
-        for (auto it = vertices[current].edges.begin(); it != vertices[current].edges.end(); ++it) {
-            // if it's in closed set, skip
-            if (closed_set.find(it->first) != closed_set.end()) continue;
+        if (visited.find(current) == visited.end()) {
+            visited.insert(current);
 
-            // what's its name?
-            next = it->first;
+            // add neighbors to open set if appropriate
+            for (auto it = vertices[current].edges.begin(); it != vertices[current].edges.end(); ++it) {
+                // if it's in closed set, skip
+                if (closed_set.find(it->first) != closed_set.end()) continue;
 
-            // what would be its associated distance?
-            weight_t d = it->second + dist;
+                // what's its name?
+                next = it->first;
 
-            // is it in succesors?
-            if (successors.find(next) == successors.end()) {
-                // it wasn't in successors
-                successors.insert(next);
-                open_set.insert(std::make_pair(d, next));
+                // what would be its associated distance?
+                weight_t d = it->second + dist;
 
-            } else {
-                // it was, but check if new distance is better
-                auto it_open = std::find_if(open_set.begin(), open_set.end(),
-                    [&next] (std::pair<weight_t, vertex_t> element) { return element.second == next; });
-
-                if (d < it_open->first) {
-                    // distance was better, so update open set (it's already in successors)
-                    open_set.erase(it_open);
+                // is it in succesors?
+                if (successors.find(next) == successors.end()) {
+                    // it wasn't in successors
+                    successors.insert(next);
                     open_set.insert(std::make_pair(d, next));
+
+                } else {
+                    // it was, but check if new distance is better
+                    auto it_open = std::find_if(open_set.begin(), open_set.end(),
+                        [&next] (std::pair<weight_t, vertex_t> element) { return element.second == next; });
+
+                    if (d < it_open->first) {
+                        // distance was better, so update open set (it's already in successors)
+                        open_set.erase(it_open);
+                        open_set.insert(std::make_pair(d, next));
+                    }
                 }
             }
         }
