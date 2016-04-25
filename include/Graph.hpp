@@ -175,18 +175,22 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
     if (start == target) return weight_t(0);
 
     // initialize
-    std::unordered_set<vertex_t> closed_set;
-    std::unordered_set<vertex_t> successors;
-    std::unordered_set<vertex_t> visited;
+    std::unordered_map< vertex_t, weight_t > successors;
     std::multimap< weight_t, vertex_t > open_set;
+    std::unordered_set<vertex_t> closed_set;
+    std::unordered_set<vertex_t> visited;
 
     closed_set.insert(start);
+
+    weight_t dist = weight_t(0);
     vertex_t current = start;
     vertex_t next = start;
-    weight_t dist = weight_t(0);
+    bool found = false;
 
-    do {
+    while (true) {
+        // skip if already visited
         if (visited.find(current) == visited.end()) {
+            // visited now
             visited.insert(current);
 
             // add neighbors to open set if appropriate
@@ -201,21 +205,21 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
                 weight_t d = it->second + dist;
 
                 // is it in succesors?
-                if (successors.find(next) == successors.end()) {
+                auto it_succ = successors.find(next);
+                if (it_succ == successors.end()) {
                     // it wasn't in successors
-                    successors.insert(next);
+                    successors.insert(std::make_pair(next, d));
                     open_set.insert(std::make_pair(d, next));
 
-                } else {
-                    // it was, but check if new distance is better
-                    auto it_open = std::find_if(open_set.begin(), open_set.end(),
+                } else if (d < it_succ->second) {
+                    // it was, but distance is better, so update
+                    successors[next] = d;
+
+                    auto it_open = std::find_if(open_set.lower_bound(it_succ->second), open_set.upper_bound(it_succ->second),
                         [&next] (std::pair<weight_t, vertex_t> element) { return element.second == next; });
 
-                    if (d < it_open->first) {
-                        // distance was better, so update open set (it's already in successors)
-                        open_set.erase(it_open);
-                        open_set.insert(std::make_pair(d, next));
-                    }
+                    open_set.erase(it_open);
+                    open_set.insert(std::make_pair(d, next));
                 }
             }
         }
@@ -227,22 +231,22 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
         dist = open_set.begin()->first;
         current = open_set.begin()->second;
 
+        // finished?
+        if (current == target) {
+            found = true;
+            break;
+        }
+
         // add it to closed set
         closed_set.insert(current);
-
-        // found it
-        if (current == target) break;
 
         // remove it from successors
         successors.erase(current);
         open_set.erase(open_set.cbegin());
-
-    } while (true);
+    }
 
     // final distance will be -1 if path could not be found
-    auto res = closed_set.find(target);
-
-    if(res != closed_set.end())
+    if(found)
         return dist;
     else
         return weight_t(-1);
