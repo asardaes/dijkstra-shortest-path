@@ -213,13 +213,12 @@ weight_t Graph<vertex_t, weight_t>::shortest_path(const vertex_t& start, const v
 
                 } else if (d < it_succ->second) {
                     // it was, but distance is better, so update
-                    successors[next] = d;
-
                     auto it_open = std::find_if(open_set.lower_bound(it_succ->second), open_set.upper_bound(it_succ->second),
                         [&next] (std::pair<weight_t, vertex_t> element) { return element.second == next; });
 
                     open_set.erase(it_open);
                     open_set.insert(std::make_pair(d, next));
+                    successors[next] = d;
                 }
             }
         }
