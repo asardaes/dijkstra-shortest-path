@@ -30,9 +30,9 @@ Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex() {
 
 template <typename vertex_t, typename weight_t>
 template <typename v_t, typename w_t>
-Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(const v_t& vertex, const w_t& weight, const int& id) {
-    edges = std::list< std::pair<v_t, w_t> > { std::make_pair(vertex, weight) };
-    this->id = id;
+Graph<vertex_t, weight_t>::Vertex<v_t, w_t>::Vertex(const v_t& vertex, const w_t& weight, const int& id) :
+    id(id) {
+        edges = std::list< std::pair<v_t, w_t> > { std::make_pair(vertex, weight) };
 };
 
 // =============================================================================================================================
@@ -43,6 +43,7 @@ template <typename vertex_t, typename weight_t>
 Graph<vertex_t, weight_t>::Graph(const int& num_vert, const bool& directed):
     directed(directed) {
         vertices = std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > (num_vert);
+        vertices_by_id = std::vector<vertex_t> (num_vert);
 }
 
 template <typename vertex_t, typename weight_t>
@@ -52,7 +53,11 @@ Graph<vertex_t, weight_t>::Graph(const std::vector<vertex_t>& vert, const bool& 
 
         // at least one edge per vertex that points to self with a weight of zero
         for (auto it = vert.begin(); it != vert.end(); ++it) {
-            vertices[*it] = Vertex<vertex_t, weight_t> (*it, 0, ids++);
+            // no repetitions
+            if (vertices.find(*it) == vertices.end()) {
+                vertices_by_id.push_back(*it);
+                vertices[*it] = Vertex<vertex_t, weight_t> (*it, 0, ids++);
+            }
         }
 }
 
@@ -73,7 +78,7 @@ bool Graph<vertex_t, weight_t>::is_directed() {
 template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::print() {
     for (auto i = vertices.begin(); i != vertices.end(); ++i) {
-        std::cout << "Vertex " << i->first << "(" << i->second.id << "):" << std::endl;
+        std::cout << "Vertex " << i->first << " (" << i->second.id << "):" << std::endl;
 
         for (auto j = i->second.edges.begin(); j != i->second.edges.end(); ++j) {
             std::cout <<
@@ -92,13 +97,18 @@ void Graph<vertex_t, weight_t>::print() {
 
 template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::add_vertex(const vertex_t& vert) {
-    vertices[vert] = Vertex<vertex_t, weight_t> (vert, 0, ids++);
+    // only add if it didn't exist
+    if (vertices.find(vert) == vertices.end()) {
+        vertices_by_id.push_back(vert);
+        vertices[vert] = Vertex<vertex_t, weight_t> (vert, 0, ids++);
+    }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------
 // Graph::add_edge and overloads
 // -----------------------------------------------------------------------------------------------------------------------------
 
+// Add single edge to existing vertex
 template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const vertex_t& vert_2, const weight_t& weight) {
     auto vert_1_exists = vertices.find(vert_1);
@@ -126,6 +136,7 @@ void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const vertex_t&
     }
 }
 
+// Add several edges to existing vertex
 template <typename vertex_t, typename weight_t>
 void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const std::vector<vertex_t>& verts_2, const std::vector<weight_t>& weights) {
     if (verts_2.size() != weights.size()) {
@@ -150,13 +161,10 @@ void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const std::vect
 
 template <typename vertex_t, typename weight_t>
 vertex_t Graph<vertex_t, weight_t>::get_vertex_by_id(const unsigned int& id) {
-    auto it = std::find_if(vertices.begin(), vertices.end(),
-        [&id] (std::pair<vertex_t, Vertex<vertex_t, weight_t>> element) { return element.second.id == id; } );
-
-    if (it == vertices.end())
+    if (id > vertices_by_id.size())
         return vertex_t();
     else
-        return it->first;
+        return vertices_by_id[id-1];
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------

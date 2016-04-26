@@ -40,9 +40,10 @@ class Graph {
             std::list< std::pair<v_t, w_t> > edges;
         };
 
-        unsigned int ids = 0;
+        unsigned int ids = 1;
         bool directed;
         std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > vertices;
+        std::vector<vertex_t> vertices_by_id;
 };
 
 // =============================================================================================================================
