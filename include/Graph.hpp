@@ -156,6 +156,20 @@ void Graph<vertex_t, weight_t>::add_edge(const vertex_t& vert_1, const std::vect
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------
+// Graph::get_vertex_by_name method template
+// -----------------------------------------------------------------------------------------------------------------------------
+
+template <typename vertex_t, typename weight_t>
+unsigned int Graph<vertex_t, weight_t>::get_vertex_by_name(const vertex_t& name) {
+    auto it = vertices.find(name);
+
+    if (it == vertices.end())
+        return 0;
+    else
+        return it->second.id;
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------
 // Graph::get_vertex_by_id method template
 // -----------------------------------------------------------------------------------------------------------------------------
 

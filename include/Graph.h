@@ -25,6 +25,7 @@ class Graph {
         void add_edge(const vertex_t& vert_1, const vertex_t& vert_2, const weight_t& weight = weight_t(0));
         void add_edge(const vertex_t& vert_1, const std::vector<vertex_t>& verts_2, const std::vector<weight_t>& weights);
 
+        unsigned int get_vertex_by_name(const vertex_t& name);
         vertex_t get_vertex_by_id(const unsigned int& id);
         weight_t shortest_path(const vertex_t& start, const vertex_t& target);
 
