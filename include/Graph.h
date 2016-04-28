@@ -2,6 +2,7 @@
 #define GRAPH_H
 
 #include <algorithm> // std::find_if
+#include <iostream> // std::cout
 #include <limits> // std::numeric_limits<>::max
 #include <map> // std::map
 #include <set> // std::set
