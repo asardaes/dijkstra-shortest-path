@@ -1,8 +1,8 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <list> // std::list
-#include <unordered_map> // std::unordered_map
+#include <algorithm> // std::find_if
+#include <map> // std::map
 #include <utility> // std::pair
 #include <vector> // std::vector
 
@@ -12,39 +12,48 @@
 
 template <typename vertex_t, typename weight_t>
 class Graph {
+    public: typedef int id_t;
+
+    protected:
+
+    private:
+        template <typename w_t>
+        struct Vertex {
+            Vertex();
+            Vertex(const id_t& id, const vertex_t& name);
+
+            id_t id;
+            vertex_t name;
+            std::vector< std::pair<id_t, w_t> > edges;
+        };
+
+        id_t ids = id_t(0);
+        bool directed;
+
+        std::vector< Vertex<weight_t> > vertices;
+        std::map< vertex_t, id_t > names_to_ids;
+
     public:
+        enum class EXCEPTIONS {
+            VERTEX_REPEATED
+        };
+
         Graph(const int& num_vert = 1, const bool& directed = true);
-        Graph(const std::vector<vertex_t>& vert, const bool& directed = true);
+        Graph(const std::vector<vertex_t>& vert_names, const bool& directed = true);
 
         unsigned int size();
         bool is_directed();
         void print();
 
-        void add_vertex(const vertex_t& vert);
+        id_t get_vertex_id(const vertex_t& name);
+        bool add_vertex_by_name(const vertex_t& name);
 
-        void add_edge(const vertex_t& vert_1, const vertex_t& vert_2, const weight_t& weight = weight_t(0));
-        void add_edge(const vertex_t& vert_1, const std::vector<vertex_t>& verts_2, const std::vector<weight_t>& weights);
+        bool add_edge_by_id(const id_t& id_1, const id_t& id_2, const weight_t& weight = weight_t(0));
+        bool add_edge_by_name(const vertex_t& vert_1, const vertex_t& vert_2, const weight_t& weight = weight_t(0));
+        bool add_edge_by_name(const vertex_t& vert_1, const std::vector<vertex_t>& verts_2, const std::vector<weight_t>& weights);
 
-        unsigned int get_vertex_by_name(const vertex_t& name);
-        vertex_t get_vertex_by_id(const unsigned int& id);
-        weight_t shortest_path(const vertex_t& start, const vertex_t& target);
-
-    protected:
-
-    private:
-        template <typename v_t, typename w_t>
-        struct Vertex {
-            Vertex();
-            Vertex(const v_t& vertex, const w_t& weight = w_t(0), const int& id = 0);
-
-            unsigned int id;
-            std::list< std::pair<v_t, w_t> > edges;
-        };
-
-        unsigned int ids = 1;
-        bool directed;
-        std::unordered_map< vertex_t, Vertex<vertex_t, weight_t> > vertices;
-        std::vector<vertex_t> vertices_by_id;
+        weight_t shortest_path_by_id(const id_t& start, const id_t& target);
+        weight_t shortest_path_by_name(const vertex_t& start, const vertex_t& target);
 };
 
 // =============================================================================================================================
