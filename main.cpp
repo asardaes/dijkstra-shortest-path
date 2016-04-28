@@ -9,31 +9,48 @@ using vert_t = string;
 using weight_t = int;
 
 int main() {
-    vector<vert_t> vertices = {"S", "A", "B", "C", "D", "E", "F", "G", "T"};
+    int s, n, p, nr, cost, r;
+    char name[12], name1[12], name2[12];
+    string NAME, NAME1, NAME2;
 
-    Graph<vert_t, weight_t> graph(vertices , true);
+    //cout << "Tests" << endl;
+    scanf("%d", &s);
 
-    graph.add_edge_by_name("S", vector<vert_t> {"A", "B", "D"}, vector<weight_t> {4, 3, 7});
-    graph.add_edge_by_name("A", "C", 1);
-    graph.add_edge_by_name("B", vector<vert_t> {"S", "D"}, vector<weight_t> {3, 4});
-    graph.add_edge_by_name("C", vector<vert_t> {"D", "E"}, vector<weight_t> {3, 1});
-    graph.add_edge_by_name("D", vector<vert_t> {"E", "F", "T"}, vector<weight_t> {1, 5, 3});
-    graph.add_edge_by_name("E", vector<vert_t> {"G", "T"}, vector<weight_t> {2, 4});
-    graph.add_edge_by_name("G", vector<vert_t> {"E", "T"}, vector<weight_t> {2, 3});
-    graph.add_edge_by_name("T", "F", 5);
+    while (s--) {
+        //cout << "Cities" << endl;
+        scanf("%d", &n);
 
-    cout << "Number of vertices = " << graph.size() << endl;
-    cout << "Directed: " << (graph.is_directed() ? "yes" : "no") << endl;
-    cout << "Id of vertex A is " << graph.get_vertex_id("A") << endl << endl;
-    graph.print();
+        Graph<vert_t, weight_t> graph (n);
 
-    for (auto i : vertices) {
-        for (auto j : vertices) {
-            cout << "Shortest path from " << i << " to " << j << " = "
-                << graph.shortest_path_by_name(i, j) << endl;
+        for (int i = 0; i < n; i++) {
+            //cout << "NAME" << endl;
+
+            scanf("%10s", name);
+            NAME = name;
+            graph.add_vertex_by_name(NAME);
+
+            //cout << "Neighbors" << endl;
+            scanf("%d", &p);
+
+            for(int j = 0; j < p; j++) {
+                //cout << "Id/Cost" << endl;
+                scanf("%d %d", &nr, &cost);
+
+                graph.add_edge_by_id(i, nr-1, cost);
+            }
         }
 
-        cout << endl;
+        //cout << "Results" << endl;
+        scanf("%d", &r);
+
+        for (int res = 0; res < r; res++) {
+            scanf("%10s %10s", name1, name2);
+            NAME1 = name1;
+            NAME2 = name2;
+            printf("%d\n", graph.shortest_path_by_name(NAME1, NAME2));
+        }
+
+        printf("\n");
     }
 
     return 0;
