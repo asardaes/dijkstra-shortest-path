@@ -24,9 +24,17 @@ int main() {
 
     cout << "Number of vertices = " << graph.size() << endl;
     cout << "Directed: " << (graph.is_directed() ? "yes" : "no") << endl;
-    //cout << "Id of vertex M is " << graph.get_vertex_id("M") << endl;
     cout << "Id of vertex A is " << graph.get_vertex_id("A") << endl << endl;
     graph.print();
+
+    for (auto i : vertices) {
+        for (auto j : vertices) {
+            cout << "Shortest path from " << i << " to " << j << " = "
+                << graph.shortest_path_by_name(i, j) << endl;
+        }
+
+        cout << endl;
+    }
 
     return 0;
 }

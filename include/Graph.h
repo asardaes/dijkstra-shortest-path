@@ -2,7 +2,9 @@
 #define GRAPH_H
 
 #include <algorithm> // std::find_if
+#include <limits> // std::numeric_limits<>::max
 #include <map> // std::map
+#include <set> // std::set
 #include <utility> // std::pair
 #include <vector> // std::vector
 

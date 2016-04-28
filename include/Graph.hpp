@@ -186,7 +186,51 @@ bool Graph<vertex_t, weight_t>::add_edge_by_name(const vertex_t& vert_1, const s
 
 template <typename vertex_t, typename weight_t>
 weight_t Graph<vertex_t, weight_t>::shortest_path_by_id(const id_t& start, const id_t& target) {
+    if (start >= vertices.size() || target >= vertices.size()) {
+        return weight_t(-1);
 
+    } else if (start == target) {
+        return weight_t(0);
+    }
+
+    // initialize
+    std::vector<weight_t> min_dist (vertices.size(), std::numeric_limits<weight_t>::max());
+    std::vector<bool> visited (vertices.size(), false);
+    std::set< std::pair<weight_t, id_t> > open_set;
+
+    open_set.insert( std::make_pair(weight_t(0), start) );
+    min_dist[start] = weight_t(0);
+
+    while(!open_set.empty()) {
+        // where are we
+        id_t current = open_set.cbegin()->second;
+        open_set.erase(open_set.cbegin());
+
+        // are we done?
+        if (current == target) return min_dist[current];
+
+        // nope, did we visit before?
+        if (!visited[current]) {
+            // we haven't, traverse its neighbors
+            for(auto edge : vertices[current].edges) {
+                // tentative distance
+                weight_t tentative_dist = min_dist[current] + edge.second;
+
+                // update if appropriate
+                if (tentative_dist < min_dist[edge.first]) {
+                    open_set.erase( std::make_pair(min_dist[edge.first], edge.first) );
+                    min_dist[edge.first] = tentative_dist;
+                    open_set.insert( std::make_pair(tentative_dist, edge.first) );
+                }
+            }
+
+            // we visited it now
+            visited[current] = true;
+        }
+    }
+
+    // final distance will be -1 if path could not be found
+    return weight_t(-1);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------
@@ -195,5 +239,13 @@ weight_t Graph<vertex_t, weight_t>::shortest_path_by_id(const id_t& start, const
 
 template <typename vertex_t, typename weight_t>
 weight_t Graph<vertex_t, weight_t>::shortest_path_by_name(const vertex_t& start, const vertex_t& target) {
+    id_t id_1 = get_vertex_id(start);
+    id_t id_2 = get_vertex_id(target);
 
+    if (id_1 < 0  || id_2 < 0) {
+        //std::cout << "Unexisting vertex or vertices." << std::endl;
+        return weight_t(-1);
+    }
+
+    return shortest_path_by_id(id_1, id_2);
 }
